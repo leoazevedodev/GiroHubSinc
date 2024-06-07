@@ -36,7 +36,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "name": "[concat(parameters('resourceGroupName'), 'Deployment', uniqueString(concat('giroapp83ac', subscription().subscriptionId)))]",
+      "name": "[concat(parameters('resourceGroupName'), 'Deployment', uniqueString(concat('giroapp8ed1', subscription().subscriptionId)))]",
       "resourceGroup": "[parameters('resourceGroupName')]",
       "apiVersion": "2019-10-01",
       "dependsOn": [
@@ -54,7 +54,7 @@
                 "tier": "Standard"
               },
               "kind": "Storage",
-              "name": "giroapp83ac",
+              "name": "giroapp8ed1",
               "type": "Microsoft.Storage/storageAccounts",
               "location": "[parameters('resourceLocation')]",
               "apiVersion": "2017-10-01"

@@ -38,7 +38,7 @@ namespace HubSincronizacao.Apis.Giro
             //var teste = _alphaBuyServices.GetCompradoPecas(ids);
 
 
-            return new OkObjectResult($"");
+            return result;
         }
 
         [Function("ObterLojas")]

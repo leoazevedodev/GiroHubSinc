@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using HubSincronizacao.Apis.Giro.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.AspNetCore.Http;
 
 namespace HubSincronizacao.SeedWork
 {
@@ -122,29 +123,39 @@ namespace HubSincronizacao.SeedWork
         {
             using (SqlConnection conn = new SqlConnection(Target.connectionString))
             {
-                await conn.OpenAsync();
-
-                using (SqlCommand cmd = new SqlCommand($"{procedureName}", conn))
+                try
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@cnpj", cnpj);
-                    cmd.Parameters.AddWithValue("@lojaid", lojaid);
+                    await conn.OpenAsync();
 
-                    int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                    using (SqlCommand cmd = new SqlCommand(procedureName, conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@cnpj", cnpj);
+                        cmd.Parameters.AddWithValue("@lojaid", lojaid);
 
-                    if (rowsAffected > 0)
-                    {
-                        return new OkObjectResult($"Procedure executed successfully, {rowsAffected} rows affected.");
+                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+                        if (rowsAffected > 0)
+                        {
+                            return new OkObjectResult($"Procedure executed successfully, {rowsAffected} rows affected.");
+                        }
+                        else
+                        {
+                            return new OkObjectResult("Procedure executed successfully, no rows affected.");
+                        }
                     }
-                    else
-                    {
-                        return new OkObjectResult("Procedure executed successfully, no rows affected.");
-                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log the exception (using ILogger or any other logging framework)
+                    return new StatusCodeResult(StatusCodes.Status500InternalServerError);
+                }
+                finally
+                {
+                    await conn.CloseAsync(); // Explicitly close the connection
                 }
             }
         }
-
-
 
         public List<GiroLojasDto> ExecuteProcedure(string procedureName, SqlParameter[] parameters = null)
         {
