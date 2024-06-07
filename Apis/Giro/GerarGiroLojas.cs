@@ -60,7 +60,7 @@ namespace HubSincronizacao.Apis.Giro
             {
                 await conn.OpenAsync();
 
-                using (SqlCommand cmd = new SqlCommand(request.ProcedureName, conn))
+                using (SqlCommand cmd = new SqlCommand("GerarGiroLojas", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@cnpj", request.Cnpj);
@@ -113,7 +113,6 @@ namespace HubSincronizacao.Apis.Giro
 
     public class ProcedureRequest
     {
-        public string ProcedureName { get; set; }
         public string LojaId { get; set; }
         public string Cnpj { get; set; }
     }
