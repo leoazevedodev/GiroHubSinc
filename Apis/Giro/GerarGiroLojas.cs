@@ -23,22 +23,52 @@ namespace HubSincronizacao.Apis.Giro
         [Function("GerarGiroLojas")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req, ILogger log)
         {
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            FilterRequest data = JsonConvert.DeserializeObject<FilterRequest>(requestBody);
+            //string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            //FilterRequest data = JsonConvert.DeserializeObject<FilterRequest>(requestBody);
 
-            string connectionString = "Data Source=tcp:alphabeto.database.windows.net,1433;Initial Catalog=BDBI;User ID=alphabeto;Password=N13tzsche";
+            //string connectionString = "Data Source=tcp:alphabeto.database.windows.net,1433;Initial Catalog=BDBI;User ID=alphabeto;Password=N13tzsche";
 
-            DataTable dataTable = new DataTable();
+            //DataTable dataTable = new DataTable();
 
-            var result = await new BulkCopy(dataTable, (connectionString, "Fotos"))
-                    .Procedure("GerarGiroLojas", data.lojaid, data.cnpj);
+            //var result = await new BulkCopy(dataTable, (connectionString, "Fotos"))
+            //        .Procedure("GerarGiroLojas", data.lojaid, data.cnpj);
 
             //var ids = result.Select(x => x.Id).ToList();
 
             //var teste = _alphaBuyServices.GetCompradoPecas(ids);
 
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var requests = JsonConvert.DeserializeObject<List<ProcedureRequest>>(requestBody);
 
-            return result;
+            var tasks = new List<Task>();
+
+            foreach (var request in requests)
+            {
+                tasks.Add(ExecuteProcedure(request));
+            }
+
+            await Task.WhenAll(tasks);
+
+            return new OkObjectResult("All procedures executed successfully.");
+
+        }
+
+        public static async Task ExecuteProcedure(ProcedureRequest request)
+        {
+            string connectionString = "Data Source=tcp:alphabeto.database.windows.net,1433;Initial Catalog=BDBI;User ID=alphabeto;Password=N13tzsche";
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                await conn.OpenAsync();
+
+                using (SqlCommand cmd = new SqlCommand(request.ProcedureName, conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@cnpj", request.Cnpj);
+                    cmd.Parameters.AddWithValue("@lojaid", request.LojaId);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
         }
 
         [Function("ObterLojas")]
@@ -77,6 +107,13 @@ namespace HubSincronizacao.Apis.Giro
 
     public class Store
     {
+        public string LojaId { get; set; }
+        public string Cnpj { get; set; }
+    }
+
+    public class ProcedureRequest
+    {
+        public string ProcedureName { get; set; }
         public string LojaId { get; set; }
         public string Cnpj { get; set; }
     }
