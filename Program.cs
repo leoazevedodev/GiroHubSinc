@@ -23,7 +23,7 @@ var host = new HostBuilder()
 
         // Entity Framework
         services.AddDbContext<DataContext>(options =>
-            options.UseSqlServer("Data Source=tcp:alphabeto.database.windows.net,1433;Initial Catalog=BDBI;User ID=alphabeto;Password=N13tzsche;Command Timeout=300"));
+            options.UseSqlServer("Data Source=tcp:alphabeto.database.windows.net,1433;Initial Catalog=BDBI;User ID=alphabeto;Password=N13tzsche;Command Timeout=300; Max Pool Size=100"));
         })
 
     .Build();

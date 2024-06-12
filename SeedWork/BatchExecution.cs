@@ -1,4 +1,5 @@
-﻿using HubSincronizacao.Data;
+﻿using HubSincronizacao.Apis.Giro.Dtos;
+using HubSincronizacao.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -30,6 +31,57 @@ namespace HubSincronizacao.SeedWork
                     string sql = "EXEC GerarGiroLojas @cnpj, @lojaid";
 
                     await _context.Database.ExecuteSqlRawAsync(sql, cnpjParameter, lojaIdParameter);
+                    await transaction.CommitAsync();
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    Console.WriteLine($"Erro ao executar a procedure para a loja {lojaId}: {ex.Message}");
+                }
+            }
+        }
+
+        public async Task<List<AtualizarGiroResultDto>> ExecuteProcedureObterAtualizacaoAsync(string lojaId, string cnpj, string data)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var lojaIdParameter = new SqlParameter("@lojaid", lojaId);
+                    var cnpjParameter = new SqlParameter("@cnpj", cnpj);
+                    var dataParameter = new SqlParameter("@dataInicio", data);
+
+                    string sql = "EXEC ObterAtualizacaoGiroLojas @lojaid, @cnpj, @dataInicio";
+
+                    var results = await _context.Set<AtualizarGiroResultDto>()
+                        .FromSqlRaw(sql, lojaIdParameter, cnpjParameter , dataParameter)
+                        .ToListAsync();
+
+                    await transaction.CommitAsync();
+                    return results;
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    Console.WriteLine($"Erro ao executar a procedure para a loja {lojaId}: {ex.Message}");
+                    return new List<AtualizarGiroResultDto>();
+                }
+            }
+        }
+
+        public async Task ExecuteProcedureAtualizarGiroAsync(string lojaId, string cnpj, string prodids)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var cnpjParameter = new SqlParameter("@cnpj", cnpj);
+                    var lojaIdParameter = new SqlParameter("@lojaid", lojaId);
+                    var prodidsParameter = new SqlParameter("@prodIds", prodids);
+
+                    string sql = "EXEC AtualizarGiroLojas @lojaid, @cnpj, @prodIds";
+
+                    await _context.Database.ExecuteSqlRawAsync(sql, cnpjParameter, lojaIdParameter, prodidsParameter);
                     await transaction.CommitAsync();
                 }
                 catch (Exception ex)
