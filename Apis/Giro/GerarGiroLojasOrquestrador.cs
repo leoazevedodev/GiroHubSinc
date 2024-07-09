@@ -31,7 +31,7 @@ namespace HubSincronizacao.Apis.Giro
 
         public async Task ExecuteStoredProcedure([ActivityTrigger] Request param)
         {
-            await _batchExecution.ExecuteProcedureAsync(param.Cnpj, param.LojaId);
+            await _batchExecution.ExecuteProcedureAsync(param.Cnpj, param.LojaId, param.Uf);
         }
 
         [Function("GerarGiroHttpStart")]
@@ -54,5 +54,6 @@ namespace HubSincronizacao.Apis.Giro
     {
         public string LojaId { get; set; }
         public string Cnpj { get; set; }
+        public string Uf { get; set; }
     }
 }
