@@ -82,7 +82,7 @@ namespace HubSincronizacao.Apis.Giro
             {
                 await conn.OpenAsync();
 
-                string query = "SELECT cadastro_de_lojas_lojaid AS lojaid, cadastro_de_lojas_cnpj AS cnpj FROM cadastro_de_lojas WHERE cadastro_de_lojas_ativo = 'True'";
+                string query = "SELECT cadastro_de_lojas_lojaid AS lojaid, cadastro_de_lojas_cnpj AS cnpj, cadastro_de_lojas_uf AS uf FROM cadastro_de_lojas WHERE cadastro_de_lojas_ativo = 'True'";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
@@ -93,7 +93,8 @@ namespace HubSincronizacao.Apis.Giro
                             stores.Add(new Store
                             {
                                 LojaId = reader["lojaid"].ToString(),
-                                Cnpj = reader["cnpj"].ToString()
+                                Cnpj = reader["cnpj"].ToString(),
+                                Uf = reader["uf"].ToString()
                             });
                         }
                     }
@@ -109,6 +110,7 @@ namespace HubSincronizacao.Apis.Giro
     {
         public string LojaId { get; set; }
         public string Cnpj { get; set; }
+        public string Uf { get; set; }
     }
 
     public class ProcedureRequest
