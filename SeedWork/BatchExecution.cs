@@ -81,7 +81,7 @@ namespace HubSincronizacao.SeedWork
                     var prodidsParameter = new SqlParameter("@prodIds", prodids);
                     var ufParameter = new SqlParameter("@uf", uf);
 
-                    string sql = "EXEC AtualizarGiroLojas @lojaid, @cnpj, @prodIds";
+                    string sql = "EXEC AtualizarGiroLojas @lojaid, @cnpj, @prodIds, @uf";
 
                     await _context.Database.ExecuteSqlRawAsync(sql, cnpjParameter, lojaIdParameter, prodidsParameter, ufParameter);
                     await transaction.CommitAsync();
