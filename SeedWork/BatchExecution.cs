@@ -70,7 +70,7 @@ namespace HubSincronizacao.SeedWork
             }
         }
 
-        public async Task ExecuteProcedureAtualizarGiroAsync(string lojaId, string cnpj, string prodids)
+        public async Task ExecuteProcedureAtualizarGiroAsync(string lojaId, string cnpj, string prodids, string uf)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -79,10 +79,11 @@ namespace HubSincronizacao.SeedWork
                     var cnpjParameter = new SqlParameter("@cnpj", cnpj);
                     var lojaIdParameter = new SqlParameter("@lojaid", lojaId);
                     var prodidsParameter = new SqlParameter("@prodIds", prodids);
+                    var ufParameter = new SqlParameter("@uf", uf);
 
                     string sql = "EXEC AtualizarGiroLojas @lojaid, @cnpj, @prodIds";
 
-                    await _context.Database.ExecuteSqlRawAsync(sql, cnpjParameter, lojaIdParameter, prodidsParameter);
+                    await _context.Database.ExecuteSqlRawAsync(sql, cnpjParameter, lojaIdParameter, prodidsParameter, ufParameter);
                     await transaction.CommitAsync();
                 }
                 catch (Exception ex)
